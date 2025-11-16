@@ -2,7 +2,7 @@ const mysql = require('mysql2/promise'); // Using mysql2 for promise support
 const DB_CONFIG = {
   host: process.env.DB_HOST || 'localhost', // Default to localhost if not set
   user: process.env.DB_USER || 'root',      // Default to root if not set
-  password: process.env.DB_PASS || 12345678,     // Default password if not set
+  password: process.env.DB_PASS || '12345678',     // Default password if not set
   database: process.env.DB_NAME || 'assignment_db',   // Default database if not set
   
 };
