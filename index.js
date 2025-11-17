@@ -13,10 +13,10 @@ app.use(express.urlencoded({ extended: true }));  // Parse URL-encoded request b
 app.use(express.static(path.join(__dirname, 'public')));  
 
 // Health check
-app.get('/health', (req, res) => res.json({ status: 'ok', port: process.env.PORT }));
+app.get('/health', (req, res) => res.json({ status: 'ok', port: process.env.PORT })); // Health check endpoint
 
 // Middleware to ensure table exists
 app.use(async (req, res, next) => { await ensureSchema(); next(); });
 
-
+// Import and use routes
 app.listen(process.env.PORT || 3000, () => console.log(`Server running on port ${process.env.PORT || 3000}`)); 
