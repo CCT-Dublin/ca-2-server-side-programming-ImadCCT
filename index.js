@@ -20,3 +20,28 @@ app.use(async (req, res, next) => { await ensureSchema(); next(); });
 
 // Import and use routes
 app.listen(process.env.PORT || 3000, () => console.log(`Server running on port ${process.env.PORT || 3000}`)); 
+
+const xss = require('xss');
+const { getPool } = require('./database');
+
+function validateRecord(record){
+  const errors = [];
+  if(!/^[a-zA-Z0-9]{1,20}$/.test(record.first_name)) errors.push("Invalid first name");
+  if(!/^[a-zA-Z0-9]{1,20}$/.test(record.second_name)) errors.push("Invalid second name");
+  if(!/^\S+@\S+\.\S+$/.test(record.email)) errors.push("Invalid email");
+  if(!/^\d{10}$/.test(record.phone_number)) errors.push("Invalid phone number");
+  if(!/^\d[A-Za-z0-9]{5}$/.test(record.eircode)) errors.push("Invalid eircode");
+  return errors;
+}
+
+app.post('/submit-form', async (req,res)=>{
+  const record = req.body;
+  for(let key in record) record[key] = xss(record[key]);
+  const errors = validateRecord(record);
+  if(errors.length) return res.json({success:false, errors});
+  const pool = await getPool();
+  await pool.query('INSERT INTO mysql_table (first_name, second_name, email, phone_number, eircode) VALUES (?,?,?,?,?)',
+    [record.first_name, record.second_name, record.email, record.phone_number, record.eircode]);
+  res.json({success:true});
+});
+
