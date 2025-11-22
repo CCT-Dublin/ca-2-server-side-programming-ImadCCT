@@ -45,3 +45,29 @@ app.post('/submit-form', async (req,res)=>{
   res.json({success:true});
 });
 
+const multer = require('multer');
+const { parse } = require('csv-parse');
+const fs = require('fs');
+const upload = multer({ dest:'uploads/' });
+
+app.post('/upload-csv', upload.single('file'), (req,res)=>{
+  const rows = [], invalid = [];
+  fs.createReadStream(req.file.path)
+    .pipe(parse({ columns:true, trim:true }))
+    .on('data', row => {
+      for(let key in row) row[key] = xss(row[key]);
+      const errors = validateRecord(row);
+      if(errors.length) invalid.push({row, errors});
+      else rows.push(row);
+    })
+    .on('end', async ()=>{
+      const pool = await getPool();
+      for(const r of rows){
+        await pool.query('INSERT INTO mysql_table (first_name, second_name, email, phone_number, eircode) VALUES (?,?,?,?,?)',
+          [r.first_name, r.second_name, r.email, r.phone_number, r.eircode]);
+      }
+      res.json({inserted:rows.length, invalid});
+      fs.unlinkSync(req.file.path);
+    });
+});
+
