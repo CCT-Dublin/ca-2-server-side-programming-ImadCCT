@@ -3,6 +3,13 @@ const express = require('express');  // Express framework for building the serve
 const helmet = require('helmet');   // Helmet for securing HTTP headers
 const path = require('path');        // Path module for handling file paths
 const { ensureSchema } = require('./database'); // Import ensureSchema from database.js
+const multer = require('multer');
+const { parse } = require('csv-parse');
+const fs = require('fs');
+const upload = multer({ dest:'uploads/' });
+const xss = require('xss');
+const { getPool } = require('./database');
+
 
 const app = express();          // Create an Express application
 
@@ -21,8 +28,7 @@ app.use(async (req, res, next) => { await ensureSchema(); next(); });
 // Import and use routes
 app.listen(process.env.PORT || 3000, () => console.log(`Server running on port ${process.env.PORT || 3000}`)); 
 
-const xss = require('xss');
-const { getPool } = require('./database');
+
 
 function validateRecord(record){
   const errors = [];
@@ -45,10 +51,7 @@ app.post('/submit-form', async (req,res)=>{
   res.json({success:true});
 });
 
-const multer = require('multer');
-const { parse } = require('csv-parse');
-const fs = require('fs');
-const upload = multer({ dest:'uploads/' });
+
 
 app.post('/upload-csv', upload.single('file'), (req,res)=>{
   const rows = [], invalid = [];
@@ -70,4 +73,10 @@ app.post('/upload-csv', upload.single('file'), (req,res)=>{
       fs.unlinkSync(req.file.path);
     });
 });
+
+app.use((req,res,next)=>{
+  res.setHeader("Content-Security-Policy","default-src 'self'");
+  next();
+});
+
 
