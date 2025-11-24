@@ -79,4 +79,21 @@ app.use((req,res,next)=>{
   next();
 });
 
+app.use((req,res,next)=>{ console.log(req.method, req.url); next(); });
+app.use((err, req, res, next)=>{ console.error(err); res.status(500).json({success:false,error:err.message}); });
+
+app.get('/force-error', (req, res) => {
+  throw new Error("This is a test crash");
+});
+
+// 404 Not Found handler (must be before the error handler)
+app.use((req, res) => {
+  res.status(404).json({ success: false, error: "Route not found" });
+});
+
+// Global Error handler (MUST be the last middleware)
+app.use((err, req, res, next) => {
+  console.error("ERROR:", err);
+  res.status(500).json({ success: false, error: err.message });
+});
 
