@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CSV Upload</title>
+</head>
+<body>
+  <h1>Upload CSV</h1>
+
+  <form id="csvForm" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".csv" required>
+    <button type="submit">Upload</button>
+  </form>
+
+  <div id="message"></div>
+
+  <script>
+    const form = document.getElementById('csvForm');
+    const messageDiv = document.getElementById('message');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      messageDiv.innerText = 'Uploading...';
+
+      try {
+        const res = await fetch('/upload-csv', { method: 'POST', body: formData });
+        const data = await res.json();
+        console.log("CSV Response:", data);
+
+        if (data.inserted !== undefined) {
+          // Fixed: fallback to empty array if data.invalid is undefined
+          messageDiv.innerText = `Inserted: ${data.inserted}, Invalid: ${(data.invalid || []).length}`;
+        } else {
+          messageDiv.innerText = 'Upload failed!';
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        messageDiv.innerText = 'Upload failed!';
+      }
+    });
+  </script>
+
+  <script src="upload.js"></script>
+</body>
+</html>

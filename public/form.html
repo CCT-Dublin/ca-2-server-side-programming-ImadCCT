@@ -1,24 +1,54 @@
 <!DOCTYPE html>
 <html>
-<head><title>Form</title></head>
+<head>
+  <title>User Form</title>
+</head>
 <body>
-<form id="userForm">
-<input type="text" name="first_name" placeholder="First Name" required maxlength="20">
-<input type="text" name="second_name" placeholder="Second Name" required maxlength="20">
-<input type="email" name="email" placeholder="Email" required>
+<h1>Submit User Data</h1>
+
+<form id="userForm" method="POST" action="/submit-form">
+
+ <input type="text" name="first_name" placeholder="First Name" required pattern="[a-zA-Z0-9]{1,20}">
+<input type="text" name="second_name" placeholder="Second Name" required pattern="[a-zA-Z0-9]{1,20}">
+<input type="email" name="email" placeholder="Email" required pattern="\S+@\S+\.\S+">
 <input type="text" name="phone_number" placeholder="Phone Number" required pattern="\d{10}">
 <input type="text" name="eircode" placeholder="Eircode" required pattern="\d[A-Za-z0-9]{5}">
-<button type="submit">Submit</button>
+
+  <button type="submit">Submit</button>
 </form>
+
 <div id="message"></div>
+
 <script>
 const form = document.getElementById('userForm');
+
 form.addEventListener('submit', async e => {
   e.preventDefault();
+
+  // convert form to JSON
   const formData = Object.fromEntries(new FormData(form));
-  const res = await fetch('/submit-form', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(formData)});
-  const data = await res.json();
-  document.getElementById('message').innerText = data.success ? 'Submitted!' : JSON.stringify(data.errors);
+  console.log("Submitting:", formData); // debug
+
+  try {
+    const res = await fetch('/submit-form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    const data = await res.json();
+    console.log("Response:", data); // debug
+
+    if(data.success){
+      document.getElementById('message').innerText = 'Submitted successfully!';
+      form.reset();
+    } else {
+      document.getElementById('message').innerText = data.errors ? JSON.stringify(data.errors) : data.error;
+    }
+  } catch(err){
+    console.error("Fetch error:", err);
+    document.getElementById('message').innerText = 'Submission failed!';
+  }
 });
 </script>
 </body>
