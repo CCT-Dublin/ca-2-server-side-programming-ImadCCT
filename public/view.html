@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>All Records</title>
   <style>
-    table { border-collapse: collapse; width: 80%; margin: 20px auto; }
+    table { border-collapse: collapse; width: 80%; margin: 20px auto; } 
     th, td { border: 1px solid #000; padding: 8px; text-align: left; }
     th { background-color: #f2f2f2; }
     h1 { text-align: center; }
@@ -16,19 +16,20 @@
   <div id="data">Loading records...</div>
 
   <script>
-    async function loadRecords() {
-      const container = document.getElementById('data');
+    async function loadRecords() {  // Function to fetch and display records
+      const container = document.getElementById('data'); // Get the container element
       try {
-        const res = await fetch('/view-data');
-        if (!res.ok) throw new Error('Network response not ok');
+        const res = await fetch('/view-data');  // Fetch data from server
+        if (!res.ok) throw new Error('Network response not ok'); // Check for response status
         const result = await res.json();
         console.log("Fetched JSON:", result); // debug
 
-        if (!result.success || !result.data.length) {
+        if (!result.success || !result.data.length) {  // Check for success and data
           container.innerHTML = "No records found.";
           return;
         }
 
+        // Build HTML table from data
         let output = "<table><tr><th>First Name</th><th>Second Name</th><th>Email</th><th>Phone</th><th>Eircode</th></tr>";
         result.data.forEach(r => {
           output += `<tr>
@@ -40,10 +41,10 @@
           </tr>`;
         });
         output += "</table>";
-        container.innerHTML = output;
+        container.innerHTML = output; // Display the table
       } catch (err) {
         console.error("Fetch error:", err);
-        container.innerText = "Failed to load records.";
+        container.innerText = "Failed to load records."; // Error message
       }
     }
 

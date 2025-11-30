@@ -14,15 +14,16 @@
   <div id="message"></div>
 
   <script>
-    const form = document.getElementById('csvForm');
-    const messageDiv = document.getElementById('message');
+    const form = document.getElementById('csvForm'); // Get the form element
+    const messageDiv = document.getElementById('message'); // Get the message display element
 
-    form.addEventListener('submit', async e => {
+    form.addEventListener('submit', async e => { // Handle form submission
       e.preventDefault();
 
-      const formData = new FormData(form);
-      messageDiv.innerText = 'Uploading...';
+      const formData = new FormData(form); // Create FormData object
+      messageDiv.innerText = 'Uploading...'; // Show uploading message
 
+      // send to server
       try {
         const res = await fetch('/upload-csv', { method: 'POST', body: formData });
         const data = await res.json();
@@ -41,6 +42,6 @@
     });
   </script>
 
-  <script src="upload.js"></script>
+  <script src="upload.js"></script> 
 </body>
 </html>
